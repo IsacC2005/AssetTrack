@@ -1,0 +1,19 @@
+[phases.setup]
+# Forzamos PHP 8.4 y las librerías necesarias para las extensiones
+nixPkgs = ['php84', 'php84Packages.composer', 'nodejs_20']
+
+[phases.install]
+# Instalamos las extensiones que Filament te pedía y luego los paquetes
+cmds = [
+    'apt-get update && apt-get install -y libicu-dev libzip-dev libexif-dev',
+    'docker-php-ext-install intl zip exif',
+    'composer install --optimize-autoloader --no-interaction'
+]
+
+[phases.build]
+# Si no usas npm, dejamos esto vacío para que no falle
+cmds = ['echo "Saltando build de node..."']
+
+[start]
+# Comando para iniciar el servidor de Laravel
+cmd = 'php artisan serve --host 0.0.0.0 --port $PORT'
