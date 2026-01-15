@@ -72,6 +72,6 @@ php artisan shield:setup
 * **Asignación:** Un administrador asigna la tarea a un empleado de mantenimiento.
 * **Cotización:** El técnico ingresa el costo estimado del servicio.
 * **Validación de Rentabilidad:** Si **Costo Mantenimiento** < **Precio del Equipo**: Se procede a aprobación. Si **Costo Mantenimiento** > **Precio del Equipo**: El sistema bloquea el proceso y recomienda desechar el activo.
-
+---
 ### 📄 Licencia
 Este proyecto es de código abierto bajo la licencia MIT.
