@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Maintenance;
 
 use App\Models\MaintenanceTicket;
 use App\Models\User;
-use App\Notifications\CostMaintenance;
-use App\Notifications\MaintenancePriceCost;
-use App\Notifications\Test;
-use Filament\Notifications\Notification;
+use App\Notifications\GeneralNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class MaintenanceJob implements ShouldQueue
+class CostMaintenanceJob implements ShouldQueue
 {
     use Queueable;
 
@@ -30,11 +27,18 @@ class MaintenanceJob implements ShouldQueue
          */
         $users = User::role('super_admin')->get();
 
+        $title = 'Aprobación de mantenimiento pendiente.';
+
         foreach ($users as $user) {
             /**
              * @var User
              */
-            $user->notify(new CostMaintenance($this->maintenance));
+            $body = "Hola $user->name, el costo del mantenimiento del equipo {$this->maintenance->device->model} es de {$this->maintenance->parts_cost}$. Ahora debes aprobar o desaprobar el mantenimiento.";
+
+            $user->notify(new GeneralNotification(
+                title: $title,
+                body: $body
+            ));
         }
     }
 }

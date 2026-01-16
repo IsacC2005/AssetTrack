@@ -29,6 +29,8 @@ class MaintenancePanelProvider extends PanelProvider
             ->id('maintenance')
             ->path('maintenance')
             ->login()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->colors([
                 'primary' => Color::Amber,
             ])

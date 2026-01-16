@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class MaintenanceTicketResource extends Resource
@@ -46,9 +47,14 @@ class MaintenanceTicketResource extends Resource
     public static function getRelations(): array
     {
         return [
-            DeviceRelationManager::class,
-            TechnicalRelationManager::class
+            // DeviceRelationManager::class,
+            // TechnicalRelationManager::class
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->whereNot('state', 'done');
     }
 
     public static function getPages(): array

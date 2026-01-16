@@ -2,8 +2,10 @@
 
 namespace App\Filament\Employee\Resources\AssignedDevices\Tables;
 
+use App\Jobs\Maintenance\RequestMaintenanceJob;
 use App\Models\Device;
 use App\Models\MaintenanceTicket;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -25,6 +27,9 @@ class AssignedDevicesTable
                     ->label('Estado mantenimiento')
                     ->getStateUsing(
                         function (Device $device): string {
+                            /**
+                             * @var MaintenanceTicket
+                             */
                             $lastTicket = $device->maintenanceTickets()->latest()->first();
 
                             $status = '';
@@ -44,7 +49,12 @@ class AssignedDevicesTable
                                     $status = 'Rechazado';
                                     break;
                                 case 'done':
-                                    $status = 'Realizado';
+                                    /**
+                                     * @var Carbon
+                                     */
+                                    $date = $lastTicket->updated_at;
+
+                                    $status = $date->diffForHumans();
                                     break;
                                 default:
                                     $status = 'Sin ticket';
@@ -57,10 +67,10 @@ class AssignedDevicesTable
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'Pendiente' => 'warning',
-                        'Realizado' => 'success',
+                        'Sin ticket' => 'secondary',
                         'Rechazado' => 'gray',
                         'Desechado' => 'danger',
-                        default => 'secondary',
+                        default => 'success',
                     })
             ])
             ->recordUrl(null)
@@ -81,17 +91,23 @@ class AssignedDevicesTable
                             ->label('Descripción del problema')
                             ->required()
                     ])
-                    ->action(function (Device $record, array $data): void {
-                        MaintenanceTicket::create([
-                            'device_id' => $record->id,
+                    ->action(function (Device $device, array $data): void {
+                        /**
+                         * @var MaintenanceTicket
+                         */
+                        $maintenance = MaintenanceTicket::create([
+                            'device_id' => $device->id,
                             'failure_device_description' => $data['description'],
                             'state' => 'pending'
                         ]);
 
                         Notification::make()
-                            ->title('Ticket creado correctamente')
+                            ->title('Solicitud de mantenimiento creada.')
                             ->success()
                             ->send();
+
+                        RequestMaintenanceJob::dispatch($maintenance, $data['description'])->onQueue('maintenance');
+
                         // dd($record);
                     })
             ]);

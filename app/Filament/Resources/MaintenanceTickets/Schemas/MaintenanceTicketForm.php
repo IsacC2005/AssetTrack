@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class MaintenanceTicketForm
 {
@@ -23,7 +24,8 @@ class MaintenanceTicketForm
                     ->getOptionLabelFromRecordUsing(fn(Device $record) => "{$record->id}: {$record->model}, {$record->serial}")
                     ->searchable(['model', 'serial'])
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->disabled(fn(?Model $record) => $record != null),
                 Select::make('technician_id')
                     ->label('Técnico')
                     ->relationship(
@@ -37,20 +39,26 @@ class MaintenanceTicketForm
                     ->getOptionLabelFromRecordUsing(fn(Employee $record) => "{$record->user->name}, $record->workstation")
                     ->searchable(['users.name', 'workstation'])
                     ->preload()
-                    ->required(),
-                Textarea::make('failure')
+                    ->required()
+                    ->validationMessages([
+                        'required' => 'Debes asignar a un técnico para el mantenimiento.'
+                    ]),
+                Textarea::make('failure_device_description')
                     ->label('Descripción de la falla')
                     ->required()
+                    ->disabled(fn(String $operation) => $operation === 'edit')
                     ->columnSpanFull(),
                 TextInput::make('parts_cost')
                     ->label('Costo de reparación')
                     ->required()
                     ->numeric()
-                    ->prefix('$'),
+                    ->prefix('$')
+                    ->visible(fn(String $operation) => $operation !== 'edit'),
                 TextInput::make('idle_time')
                     ->label('Tiempo de inactividad')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn(String $operation) => $operation !== 'edit'),
                 SpatieMediaLibraryFileUpload::make('photo_device_maintenance')
                     ->image()
                     ->multiple()
@@ -59,6 +67,7 @@ class MaintenanceTicketForm
                     ->validationMessages([
                         'max_files' => 'Solo puedes subir un máximo de dos imágenes.',
                     ])
+                    ->visible(fn(String $operation) => $operation !== 'edit')
             ]);
     }
 }

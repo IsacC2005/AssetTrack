@@ -2,7 +2,7 @@
 
 namespace App\Filament\Maintenance\Resources\AssignedMaintenances\Tables;
 
-use App\Jobs\MaintenanceJob;
+use App\Jobs\Maintenance\CostMaintenanceJob;
 use App\Models\MaintenanceTicket;
 use App\Models\User;
 use App\Notifications\CostMaintenance;
@@ -50,21 +50,27 @@ class AssignedMaintenancesTable
 
                             $ticket->save();
 
+                            Notification::make()
+                                ->title('Costo de mantenimiento definido.')
+                                ->body('Debes esperar que aprueben el mantenimiento.')
+                                ->success()
+                                ->send();
 
-                            // $users = User::role('super_admin')->get();
-
-
-                            // foreach ($users as $user) {
-                            //     /**
-                            //      * @var User
-                            //      */
-                            //     $user->notify(new CostMaintenance($ticket));
-                            // }
-                            // dd($users);
-
-                            MaintenanceJob::dispatch($ticket)->onQueue('maintenance');
+                            CostMaintenanceJob::dispatch($ticket)->onQueue('maintenance');
                         }
                     )
+                    ->visible(
+                        fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost ? false : true
+                    ),
+                Action::make('Listo')
+                    ->action(
+                        function (MaintenanceTicket $ticket) {
+                            $ticket->state = 'done';
+
+                            $ticket->save();
+                        }
+                    )
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

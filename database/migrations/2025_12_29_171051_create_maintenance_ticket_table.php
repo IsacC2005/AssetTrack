@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('device_id')->constrained()->onDelete('restrict')->onUpdate('cascade');
             $table->foreignId('technician_id')->nullable()->constrained('employees', 'id')->onDelete('restrict')->onUpdate('cascade');
             $table->text('failure_device_description')->nullable();
-            $table->enum('state', ['pending', 'discarded', 'rejected', 'done']);
+            $table->enum('state', ['pending', 'maintenance', 'discarded', 'rejected', 'done']);
             $table->date('date_maintenance')->nullable();
             $table->text('failure')->nullable();
             $table->float('parts_cost')->nullable();
