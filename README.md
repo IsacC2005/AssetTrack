@@ -2,7 +2,7 @@
 
 ![AssetTrack Banner](https://foto.png)
 
-**AssetTrack** es una plataforma de código abierto diseñada para el control total de los activos de una empresa. Desarrollada con Laravel y Filament, ofrece una interfaz administrativa de alta fidelidad para gestionar infraestructura, personal y mantenimiento con precisión quirúrgica.
+**AssetTrack** es una plataforma diseñada para el control total de los activos de una empresa. Desarrollada con Laravel y Filament, ofrece una interfaz administrativa de alta fidelidad para gestionar infraestructura, personal y mantenimiento con precisión quirúrgica.
 
 ---
 
