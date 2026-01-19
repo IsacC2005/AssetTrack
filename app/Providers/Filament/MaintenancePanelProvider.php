@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\Maintenances;
 use App\Http\Middleware\AccessPanelMaintenance;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -39,10 +40,11 @@ class MaintenancePanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Maintenance/Widgets'), for: 'App\Filament\Maintenance\Widgets')
+            // ->discoverWidgets(in: app_path('Filament/Maintenance/Widgets'), for: 'App\Filament\Maintenance\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                Maintenances::class
+                // AccountWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
