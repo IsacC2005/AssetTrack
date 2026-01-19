@@ -32,7 +32,7 @@ class MaintenancePanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Emerald,
             ])
             ->discoverResources(in: app_path('Filament/Maintenance/Resources'), for: 'App\Filament\Maintenance\Resources')
             ->discoverPages(in: app_path('Filament/Maintenance/Pages'), for: 'App\Filament\Maintenance\Pages')

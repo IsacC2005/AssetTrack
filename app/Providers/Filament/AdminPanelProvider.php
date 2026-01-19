@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\DevicesByDepartment;
 use App\Filament\Widgets\EmployeesAndDevice;
+use App\Filament\Widgets\FrequencyTheMaintenance;
 use App\Http\Middleware\AccessPanelAdmin;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -36,18 +38,20 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::Emerald,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                EmployeesAndDevice::class
+                EmployeesAndDevice::class,
+                DevicesByDepartment::class,
+                FrequencyTheMaintenance::class
                 // AccountWidget::class,
-                //FilamentInfoWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
