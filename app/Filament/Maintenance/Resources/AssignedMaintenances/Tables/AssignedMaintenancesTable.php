@@ -2,10 +2,12 @@
 
 namespace App\Filament\Maintenance\Resources\AssignedMaintenances\Tables;
 
+use App\Jobs\Maintenance\DoneMaintenanceJob;
 use App\Jobs\Maintenance\CostMaintenanceJob;
 use App\Models\MaintenanceTicket;
 use App\Models\User;
 use App\Notifications\CostMaintenance;
+use App\Notifications\GeneralNotification;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -67,9 +69,16 @@ class AssignedMaintenancesTable
                         function (MaintenanceTicket $ticket) {
                             $ticket->state = 'done';
 
-                            $ticket->save();
+                            // $ticket->save();
+
+                            Notification::make()
+                                ->title('Mantenimiento marcado como realizado.')
+                                ->send();
+
+                            DoneMaintenanceJob::dispatch($ticket)->onQueue('maintenance');
                         }
                     )
+                    ->visible(fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost ? true : false)
 
             ])
             ->toolbarActions([
