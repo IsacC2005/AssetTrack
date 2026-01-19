@@ -53,7 +53,7 @@ class MaintenanceTicketForm
                     ->required()
                     ->numeric()
                     ->prefix('$')
-                    ->visible(fn(String $operation) => $operation !== 'edit'),
+                    ->visible(fn(String $operation) => $operation == 'edit'),
                 TextInput::make('idle_time')
                     ->label('Tiempo de inactividad')
                     ->required()

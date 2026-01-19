@@ -12,7 +12,11 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -31,6 +35,8 @@ class MaintenanceTicketsTable
                 TextColumn::make('parts_cost')
                     ->label('Costo del mantenimiento')
                     ->money()
+                    ->badge()
+                    ->icon(Heroicon::CurrencyDollar)
                     ->sortable(),
                 TextColumn::make('idle_time')
                     ->label('Tiempo inactivo')
@@ -46,11 +52,20 @@ class MaintenanceTicketsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('state')
+                    ->label('Estado del Ticket')
+                    ->options([
+                        'pending' => 'Pendiente',
+                        'done' => 'Completado',
+                        'rejected' => 'Rechazado',
+                        'discarded' => 'Desechado',
+                    ])
+                    ->default('pending')
             ])
             ->recordActions([
                 // EditAction::make(),
-                Action::make('assigned technical')
+                Action::make('Asignar Técnico')
+                    ->icon(Heroicon::WrenchScrewdriver)
                     ->modalHeading('Asignar tecnico')
                     ->form([
                         Select::make('technician_id')
@@ -63,7 +78,8 @@ class MaintenanceTicketsTable
                                     });
                                 }
                             )
-                            ->getOptionLabelFromRecordUsing(fn(Employee $record) => "{$record->user->name} | $record->workstation")
+                            ->getOptionLabelFromRecordUsing(fn(Employee $record) => "{$record->user->name} | $record->workstation"),
+
                     ])
                     ->action(
                         function (MaintenanceTicket $ticket, array $data): void {
@@ -84,8 +100,50 @@ class MaintenanceTicketsTable
                     )
                     ->visible(
                         fn(MaintenanceTicket $ticket): bool => $ticket->technician_id ? false : true
+                    ),
+                Action::make('Aprobar')
+                    ->requiresConfirmation()
+                    ->color(Color::Amber)
+                    ->icon(Heroicon::Star)
+                    ->action(
+                        function (MaintenanceTicket $ticket) {
+                            $ticket->state = 'maintenance';
+
+                            $ticket->save();
+
+                            Notification::make()
+                                ->title('Mantenimiento aprobado')
+                                ->send();
+                        }
                     )
+                    ->visible(fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost != null & $ticket->state === 'pending' ? true : false),
+                Action::make('Descartar')->requiresConfirmation()
+                    ->color(Color::Red)
+                    ->icon(Heroicon::ArchiveBoxXMark)
+                    ->action(
+                        function (MaintenanceTicket $ticket) {
+                            $ticket->state = 'discarded';
+
+                            $ticket->save();
+
+                            $device = $ticket->device;
+
+                            $device->state = 'discarded';
+
+                            $device->employee_id = null;
+
+                            $device->save();
+
+                            Notification::make()
+                                ->title('Mantenimiento aprobado')
+                                ->send();
+                        }
+                    )
+                    ->visible(fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost != null & $ticket->state === 'pending' ? true : false),
+
+
             ])
+            ->defaultSort('updated_at', 'desc')
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

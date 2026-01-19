@@ -54,7 +54,7 @@ class AssignedMaintenanceResource extends Resource
 
         return parent::getEloquentQuery()
             ->where('technician_id', $employee_id)
-            ->whereNot('state', 'done');
+            ->whereNotIn('state', ['discarded', 'rejected', 'done']);
     }
 
     public static function getPages(): array

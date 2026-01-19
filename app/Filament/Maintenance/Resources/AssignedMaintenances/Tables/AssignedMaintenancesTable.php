@@ -15,6 +15,8 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -32,6 +34,8 @@ class AssignedMaintenancesTable
                     ->default('N/A')
                     ->label('Costo de reparación')
                     ->money()
+                    ->badge()
+                    ->icon(Heroicon::CurrencyDollar)
             ])
             ->filters([
                 //
@@ -65,11 +69,13 @@ class AssignedMaintenancesTable
                         fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost ? false : true
                     ),
                 Action::make('Listo')
+                    ->icon(Heroicon::HandThumbUp)
+                    ->color(Color::Amber)
                     ->action(
                         function (MaintenanceTicket $ticket) {
                             $ticket->state = 'done';
 
-                            // $ticket->save();
+                            $ticket->save();
 
                             Notification::make()
                                 ->title('Mantenimiento marcado como realizado.')
@@ -78,7 +84,7 @@ class AssignedMaintenancesTable
                             DoneMaintenanceJob::dispatch($ticket)->onQueue('maintenance');
                         }
                     )
-                    ->visible(fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost ? true : false)
+                    ->visible(fn(MaintenanceTicket $ticket): bool => $ticket->parts_cost !== null & $ticket->state === 'maintenance' ? true : false)
 
             ])
             ->toolbarActions([

@@ -52,10 +52,10 @@ class MaintenanceTicketResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->whereNot('state', 'done');
-    }
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()->order;
+    // }
 
     public static function getPages(): array
     {
