@@ -20,6 +20,7 @@ return new class extends Migration
             $table->float('cost');
             $table->enum('state', ['assigned', 'available', 'maintenance', 'discarded']);
             $table->integer('maintenance_interval');
+            $table->date('last_notified_at')->nullable();
             $table->timestamps();
         });
     }
