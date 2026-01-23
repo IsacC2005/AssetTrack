@@ -3,8 +3,16 @@ FROM php:8.2-apache
 
 # 1. Instalar dependencias del sistema y PHP
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev zip libzip-dev unzip git \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    libzip-dev \
+    unzip \
+    git \
+    libicu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure intl \
     && docker-php-ext-install pdo_mysql gd zip
 
 # 2. Configurar Apache para Laravel (apuntar a /public)
